@@ -27,9 +27,6 @@ buttonAction buttonMultProcessing(t_Bttn *bttn, uint16_t time)
 		// set button functional of button
 		bttn -> buttFunc = buttonMultTask;
 		bttn -> flgFstAssigment = 1;
-		
-		set_cursor(0, 20, 0);
-		print_IntNum(0, ST7735_COLOR_WHITE, 1, 1);
 	}
 	
 	if(bttn -> buttFunc == buttonSinglTask){
