@@ -128,7 +128,7 @@ typedef struct __screen_typedef
 //--------------------------------------------------------------------------------------------------------
 
 //@brief 							screen's initialization
-void ST7735_Init();
+void ST7735S_Init();
 
 
 //@brief 							Set screen rotate. Default init is 0 (screen's loop up).
@@ -137,15 +137,15 @@ void ST7735_Init();
 //										set 90  -> right turn
 //										set 180 -> upside down
 //										set 270 -> left turn
-void set_ScreenRotate(uint16_t angle);
+void ST7735S_SetScreenRotate(uint16_t angle);
 
 
 //@brief 							fill thr screen
 //@param color				color of screen
-void fillScreen(uint16_t color);
+void ST7735S_FillScreen(uint16_t color);
 
 
-void set_partialArea(uint16_t l_start, uint16_t l_finish);
+void ST7735S_SetPartialArea(uint16_t l_start, uint16_t l_finish);
 //--------------------------------------------------------------------------------------------------------
 
 
@@ -157,7 +157,7 @@ void set_partialArea(uint16_t l_start, uint16_t l_finish);
 //@param green_6 			6 bits are used to set GREEN, maximum intensity is 2^6 = 61 
 //@param blue_5 			5 bits are used to set BLUE,  maximum intensity is 2^5 = 31 
 //@return obtained_color      
-uint16_t set_Color16(uint16_t red_5, uint16_t green_6, uint16_t blue_5);
+uint16_t ST7735S_SetColor16(uint16_t red_5, uint16_t green_6, uint16_t blue_5);
 
 
 //INEXACT REPRESENTATION!! THERE ARE INACCURACY!!
@@ -166,7 +166,7 @@ uint16_t set_Color16(uint16_t red_5, uint16_t green_6, uint16_t blue_5);
 //@param green_8 		intensity value of GREEN(0..255)   which will be represented as intensity GREEN(0..61)	
 //@param blue_8			intensity value of  BLUE(0..255)   which will be represented as intensity  BLUE(0..31)
 //@return obtained_color
-uint16_t conv_Color24to16(uint16_t red_8, uint16_t green_8, uint16_t blue_8);
+uint16_t ST7735S_ConvColor24to16(uint16_t red_8, uint16_t green_8, uint16_t blue_8);
 //--------------------------------------------------------------------------------------------------------
 
 
@@ -176,21 +176,21 @@ uint16_t conv_Color24to16(uint16_t red_8, uint16_t green_8, uint16_t blue_8);
 //@param c_pos 					coordinate x0 of pixel
 //@param r_pos					coordinate y0 of pixel
 //@param color 					the pixel will be (uint16_t color) color
-void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
+void ST7735S_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
 
 
 //@param x0						coordinate x0 of start point
 //@param x1						coordinate x1 of finish point
 //@param height				height of rectangle		
 //@param color				the line will be (uint16_t color) color
-void plot_FastVrtLine(int16_t x0, int16_t y0, uint16_t height, uint16_t color);
+void ST7735S_DrawFastVrtLine(int16_t x0, int16_t y0, uint16_t height, uint16_t color);
 
 
 //@param y0						coordinate y0 of start point
 //@param y1						coordinate y1 of finish point
 //@param x						width of rectangle
 //@param color				the line will be (uint16_t color) color
-void plot_FastHrznLine(int16_t x0, int16_t y0, uint16_t width, uint16_t color);
+void ST7735S_DrawFastHrznLine(int16_t x0, int16_t y0, uint16_t width, uint16_t color);
 
 
 //@brief							Line drawing by Bresenham's line algorithm 
@@ -199,7 +199,7 @@ void plot_FastHrznLine(int16_t x0, int16_t y0, uint16_t width, uint16_t color);
 //@param x1						coordinate x1 of finish point
 //@param y1						coordinate y1 of finish point
 //@param color 				the line will be (uint16_t color) color
-void plot_Line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+void ST7735S_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 
 
 //@brief							Line drawing by Bresenham's line algorithm 
@@ -210,7 +210,7 @@ void plot_Line(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t colo
 //the line will be with smooth transition from color_x0y0 to color_x1y1. For the gradien is used linear interpolation
 //@param color_x0y0 	color of start point
 //@param color_x1y1		color of finish point
-void plot_Line2Color(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color_x0y0, uint16_t color_x1y1);
+void ST7735S_DrawLine2Color(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color_x0y0, uint16_t color_x1y1);
 
 
 //@param c_start			coordinate x0 of start point
@@ -218,8 +218,8 @@ void plot_Line2Color(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_
 //@param width				width of rectangle
 //@param height				height of rectangle
 //@param color				the rectangle will be (uint16_t color) color
-void plot_Rectangle(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color);
-void plot_FillRectangle(uint16_t x0, uint16_t y0, uint16_t width, uint16_t height, uint16_t color);
+void ST7735S_DrawRectangle(int16_t x, int16_t y, int16_t width, int16_t height, uint16_t color);
+void ST7735S_DrawFillRectangle(uint16_t x0, uint16_t y0, uint16_t width, uint16_t height, uint16_t color);
 
 
 //@brief 							Circle drawing by midpoint circle drawing algorithm
@@ -227,8 +227,8 @@ void plot_FillRectangle(uint16_t x0, uint16_t y0, uint16_t width, uint16_t heigh
 //@param y0						coordinate y0 of circle center
 //@param r						radius of the circle
 //@param color				color of the circle
-void plot_Circle(uint16_t x0, uint16_t y0, int16_t r, uint16_t color);
-void plot_FillCircle(uint16_t x0, uint16_t y0, int16_t r, uint16_t color);
+void ST7735S_DrawCircle(uint16_t x0, uint16_t y0, int16_t r, uint16_t color);
+void ST7735S_DrawFillCircle(uint16_t x0, uint16_t y0, int16_t r, uint16_t color);
 
 
 //@param x0						coordinate x0 of first point
@@ -237,8 +237,8 @@ void plot_FillCircle(uint16_t x0, uint16_t y0, int16_t r, uint16_t color);
 //@param y1						coordinate y1 of second point
 //@param x2						coordinate x0 of third point
 //@param y2						coordinate y0 of third point
-void plot_Triangle(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
-void plot_FillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+void ST7735S_DrawTriangle(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
+void ST7735S_DrawFillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
 //--------------------------------------------------------------------------------------------------------
 
 
@@ -250,7 +250,7 @@ void plot_FillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x
 //@param x						coordinate x 
 //@param y						coordinate y
 //@param auto_center	coordinate x and y has position middle of the screen
-void set_cursor(int16_t x, int16_t y, _Bool auto_center);
+void ST7735S_SetCursor(int16_t x, int16_t y, _Bool auto_center);
 
 
 //@brief 							Print ONLY the standard ASCII symbol.(Before use check if font5x7.h is included!) 
@@ -259,7 +259,7 @@ void set_cursor(int16_t x, int16_t y, _Bool auto_center);
 //										For standard size of ASCII symbol(5x7 pixel) -> size_x = 1, size_y = 1
 //@param size_x				The width size of the "pixel" from which the symbol is built 
 //@param size_y				The height size of the "pixel" from which the symbol is built
-void print_Char(unsigned char c, uint16_t color, uint8_t size_x, uint8_t size_y);
+void ST7735S_PrintChar(unsigned char c, uint16_t color, uint8_t size_x, uint8_t size_y);
 
 
 //@brief 							Print the standard ASCII string.(Before use check if font5x7.h is included!) 
@@ -268,7 +268,7 @@ void print_Char(unsigned char c, uint16_t color, uint8_t size_x, uint8_t size_y)
 //										For standard size of ASCII symbol(5x7 pixel) -> size_x = 1, size_y = 1
 //@param size_x				The width size of the "pixel" from which the symbol is built 
 //@param size_y				The height size of the "pixel" from which the symbol is built
-void print_CharString(const char message[], uint16_t color, uint8_t size_x, uint8_t size_y);
+void ST7735S_PrintCharString(const char message[], uint16_t color, uint8_t size_x, uint8_t size_y);
 
 
 //@brief 							Print an integer converted to a string 
@@ -277,7 +277,7 @@ void print_CharString(const char message[], uint16_t color, uint8_t size_x, uint
 //										For standard size of ASCII symbol(5x7 pixel) -> size_x = 1, size_y = 1
 //@param size_x				The width size of the "pixel" from which the symbol is built 
 //@param size_y				The height size of the "pixel" from which the symbol is built
-void print_IntNum(int32_t num, uint16_t color, uint8_t size_x, uint8_t size_y);
+void ST7735S_PrintIntNum(int32_t num, uint16_t color, uint8_t size_x, uint8_t size_y);
 
 
 //@brief 							Print an float converted to a string 
@@ -286,7 +286,7 @@ void print_IntNum(int32_t num, uint16_t color, uint8_t size_x, uint8_t size_y);
 //										For standard size of ASCII symbol(5x7 pixel) -> size_x = 1, size_y = 1
 //@param size_x				The width size of the "pixel" from which the symbol is built 
 //@param size_y				The height size of the "pixel" from which the symbol is built
-void print_FloatNum(float floatNumber, uint16_t color, uint8_t size_x, uint8_t size_y);
+void ST7735S_PrintFloatNum(float floatNumber, uint16_t color, uint8_t size_x, uint8_t size_y);
 //--------------------------------------------------------------------------------------------------------
 
 
