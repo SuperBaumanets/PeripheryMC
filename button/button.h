@@ -66,7 +66,7 @@ typedef struct c_Bttn
 //Functions 
 //================================================================================================================================================
 
-//@brief														Function initializes the single tasking button parameters and writes them to the structure.
+//@brief														Function initializes the button parameters and writes them to the structure.
 //																	initializes parameters:
 //																	port of button
 //																	pin of button
