@@ -33,9 +33,12 @@ typedef struct c_KY023
 	t_Bttn bttnSW;
 	buttonAction resMltKY023;
 	
+	uint16_t dpi;
+	
 }t_KY023;
 
-extern uint8_t efforts[];
+extern uint8_t KY023_EffortsVRXVRY[];
+extern uint16_t KY023_CursorVRXVRY[];
 //-----------------------------------------------------------------------------
 
 void KY023_Init(t_KY023 *ptrky023, 
@@ -45,5 +48,7 @@ void KY023_Init(t_KY023 *ptrky023,
 
 void KY023_Processing(t_KY023 *ptrky023, uint16_t time);
 void KY023_GetEffortVRXVRY(t_KY023 *ptrky023);
+void KY023_CursorMode(t_KY023 *ptrky023);
+void KY023_SetSensitivity(t_KY023 *ptrky023, uint8_t sensitivity);
 
 #endif // #ifndef KY023_H_

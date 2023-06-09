@@ -1,11 +1,6 @@
 #include "ky023.h" 
 
 #define DEBUG
-#ifdef DEBUG
-uint16_t cntMultShort = 1;
-uint16_t cntMultLong = 1;
-uint16_t cntMultDouble = 1;
-#endif //DEBUG
 
 //INIT
 //================================================================================================================================================
@@ -22,7 +17,8 @@ static uint16_t valYmax = 4096;
 static uint16_t valYmin = 0;
 static uint16_t valYmean = 2048;
 
-uint8_t efforts[4];
+uint8_t KY023_EffortsVRXVRY[4];
+uint16_t KY023_CursorVRXVRY[4];
 
 void KY023_Init(t_KY023 *ptrky023, 
 								GPIO_TypeDef *_portVRX, uint16_t _pinVRX, 
@@ -47,11 +43,13 @@ void KY023_Init(t_KY023 *ptrky023,
 	
 	cntGoToCalibrate = 0;
 	inCalibrate = 0;
+	
+	ptrky023 -> dpi  = 1;
 }
 //================================================================================================================================================
 
 
-//CALIBRATE
+//SETTING
 //================================================================================================================================================
 void KY023_CalibrateVRXVRY(t_KY023 *ptrky023)
 {
@@ -74,11 +72,47 @@ void KY023_SetOrigin(t_KY023 *ptrky023)
 	
 }
 
-void KY023_SetÛensitivity(t_KY023 *ptrky023)
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifdef ST7735_H_
+void KY023_SetSensitivity(t_KY023 *ptrky023, uint8_t sensitivity)
+{
+	if(sensitivity > 10)
+		ptrky023 -> dpi = 10;
+	
+	switch(sensitivity){
+		case 1: ptrky023 -> dpi = 1;
+			break;
+		case 2: ptrky023 -> dpi = 2;
+			break;
+		case 3: ptrky023 -> dpi = 4;
+			break;
+		case 4: ptrky023 -> dpi = 8;
+			break;
+		case 5: ptrky023 -> dpi = 16;
+			break;
+		case 6: ptrky023 -> dpi = 32;
+			break;
+		case 7: ptrky023 -> dpi = 64;
+			break;
+		case 8: ptrky023 -> dpi = 128;
+			break;
+		case 9: ptrky023 -> dpi = 256;
+			break;
+		case 10: ptrky023 -> dpi = 512;
+			break;
+	}
+}
+
+uint8_t KY023_GetSensitivity(t_KY023 *ptrky023){
+	return ptrky023 -> dpi;
+}
+#endif //define ST7735_H_
+
+
+void KY023_SetButtonFunc()
 {
 	
 }
-
 //================================================================================================================================================
 
 
@@ -174,45 +208,98 @@ void KY023_Processing(t_KY023 *ptrky023, uint16_t time)
 
 // User`s Functions
 //================================================================================================================================================
-uint8_t KY023_Cursor(t_KY023 *ptrky023)
+#ifdef ST7735_H_
+void KY023_CursorMode(t_KY023 *ptrky023)
 {
+	uint16_t lenXmin = valXmean - valXmin;
+	uint16_t lenXmax = valXmax - valXmean;
+	uint16_t lenYmin = valYmean - valYmin;
+	uint16_t lenYmax = valYmax - valYmean;
 	
+	uint16_t stepDpiXmin = lenXmin / ptrky023 -> dpi;
+	uint16_t stepDpiXmax = lenXmax / ptrky023 -> dpi;
+	uint16_t stepDpiYmin = lenYmin / ptrky023 -> dpi;
+	uint16_t stepDpiYmax = lenYmax / ptrky023 -> dpi;
+	
+	if(((ptrky023 -> valVRX) <= (valXmean + 5) ) && ((ptrky023 -> valVRX) >= (valXmean - 5) )){
+		KY023_CursorVRXVRY[0] = 0;
+		KY023_CursorVRXVRY[1] = 0;
+	}
+	else{
+		if((ptrky023 -> valVRX) < valXmean){
+			uint16_t curLenXmin = valXmean - (ptrky023 -> valVRX);
+			KY023_CursorVRXVRY[0] = (float)(curLenXmin / stepDpiXmin) + 1;
+			if(KY023_CursorVRXVRY[0] > ptrky023 -> dpi){
+				KY023_CursorVRXVRY[0] = ptrky023 -> dpi; 
+			}
+		}
+		else{
+			uint16_t curLenXmax = (ptrky023 -> valVRX) - valXmean;
+			KY023_CursorVRXVRY[1] = (float)(curLenXmax / stepDpiXmax) + 1;
+			if(KY023_CursorVRXVRY[1] > ptrky023 -> dpi){
+				KY023_CursorVRXVRY[1] = ptrky023 -> dpi; 
+			}
+		}
+	}
+	if(((ptrky023 -> valVRY) <= (valYmean + 5) ) && ((ptrky023 -> valVRY) >= (valYmean - 5) )){
+		KY023_CursorVRXVRY[2] = 0;
+		KY023_CursorVRXVRY[3] = 0;
+	}
+	else{
+		if((ptrky023 -> valVRY) < valYmean){
+			uint16_t curLenYmin = valYmean - (ptrky023 -> valVRY);
+			KY023_CursorVRXVRY[2] = (float)(curLenYmin / stepDpiYmin) + 1;
+			if(KY023_CursorVRXVRY[2] > ptrky023 -> dpi){
+				KY023_CursorVRXVRY[2] = ptrky023 -> dpi; 
+			}
+		}
+		else{
+			uint16_t curLenYmax = (ptrky023 -> valVRY) - valYmean;
+			KY023_CursorVRXVRY[3] = (float)(curLenYmax / stepDpiYmax) + 1;
+			if(KY023_CursorVRXVRY[3] > ptrky023 -> dpi){
+				KY023_CursorVRXVRY[3] = ptrky023 -> dpi; 
+			}
+		}
+	}		
 }
+#endif //define ST7735_H_ 
+
 
 uint16_t KY023_GetAngle(t_KY023 *ptrky023)
 {
 	
 }
 
+
 void KY023_GetEffortVRXVRY(t_KY023 *ptrky023)
 {
 	for(uint8_t i = 0; i < 4; i++)
-		efforts[i] = 0;
+		KY023_EffortsVRXVRY[i] = 0;
 	
 	if((ptrky023 -> valVRX) < valXmean){
 		float lenXmin = valXmean - (ptrky023 -> valVRX);
-		efforts[0] = (float)((lenXmin / (valXmean - valXmin))) * 100;
-		if(efforts[0] > 100)
-			efforts[0] = 100;
+		KY023_EffortsVRXVRY[0] = (float)((lenXmin / (valXmean - valXmin))) * 100;
+		if(KY023_EffortsVRXVRY[0] > 100)
+			KY023_EffortsVRXVRY[0] = 100;
 	}
 	else{
 		float lenXmax = (ptrky023 -> valVRX) - valXmean;
-		efforts[1] = (float)(lenXmax / (valXmax - valXmean)) * 100;
-		if(efforts[1] > 100)
-			efforts[1] = 100;
+		KY023_EffortsVRXVRY[1] = (float)(lenXmax / (valXmax - valXmean)) * 100;
+		if(KY023_EffortsVRXVRY[1] > 100)
+			KY023_EffortsVRXVRY[1] = 100;
 	}
 	
 	if((ptrky023 -> valVRY) < valYmean){
 		float lenYmin = valYmean - (ptrky023 -> valVRY);
-		efforts[2] = (float)((lenYmin / (valYmean - valYmin))) * 100;
-		if(efforts[2] > 100)
-			efforts[2] = 100;
+		KY023_EffortsVRXVRY[2] = (float)((lenYmin / (valYmean - valYmin))) * 100;
+		if(KY023_EffortsVRXVRY[2] > 100)
+			KY023_EffortsVRXVRY[2] = 100;
 	}
 	else{
 		float lenYmax = (ptrky023 -> valVRY) - valYmean;
-		efforts[3] = (float)(lenYmax / (valYmax - valYmean)) * 100;
-		if(efforts[3] > 100)
-			efforts[3] = 100;
+		KY023_EffortsVRXVRY[3] = (float)(lenYmax / (valYmax - valYmean)) * 100;
+		if(KY023_EffortsVRXVRY[3] > 100)
+			KY023_EffortsVRXVRY[3] = 100;
 	}	
 }
 //================================================================================================================================================
