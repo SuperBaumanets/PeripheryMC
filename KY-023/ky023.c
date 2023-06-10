@@ -1,7 +1,5 @@
 #include "ky023.h" 
 
-#define DEBUG
-
 //INIT
 //================================================================================================================================================
 extern ADC_HandleTypeDef hadc1;
@@ -17,6 +15,7 @@ static uint16_t valYmax = 4096;
 static uint16_t valYmin = 0;
 static uint16_t valYmean = 2048;
 
+uint16_t KY023_VRXVRY[2];
 uint8_t KY023_EffortsVRXVRY[4];
 uint16_t KY023_CursorVRXVRY[4];
 
@@ -67,12 +66,6 @@ void KY023_CalibrateVRXVRY(t_KY023 *ptrky023)
 }
 
 
-void KY023_SetOrigin(t_KY023 *ptrky023)
-{
-	
-}
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #ifdef ST7735_H_
 void KY023_SetSensitivity(t_KY023 *ptrky023, uint8_t sensitivity)
 {
@@ -92,14 +85,14 @@ void KY023_SetSensitivity(t_KY023 *ptrky023, uint8_t sensitivity)
 			break;
 		case 6: ptrky023 -> dpi = 32;
 			break;
-		case 7: ptrky023 -> dpi = 64;
+		/*case 7: ptrky023 -> dpi = 64;
 			break;
 		case 8: ptrky023 -> dpi = 128;
 			break;
 		case 9: ptrky023 -> dpi = 256;
 			break;
 		case 10: ptrky023 -> dpi = 512;
-			break;
+			break;*/
 	}
 }
 
@@ -107,12 +100,6 @@ uint8_t KY023_GetSensitivity(t_KY023 *ptrky023){
 	return ptrky023 -> dpi;
 }
 #endif //define ST7735_H_
-
-
-void KY023_SetButtonFunc()
-{
-	
-}
 //================================================================================================================================================
 
 
@@ -127,19 +114,6 @@ void joystickProcessing(t_KY023 *ptrky023)
 	HAL_ADCEx_InjectedStart(&hadc1); 
 	HAL_ADC_PollForConversion(&hadc1,10); 
   ptrky023 -> valVRY = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_2);
-	
-	#ifdef DEBUG
-	ST7735S_SetCursor(0, 10, 0);
-	ST7735S_PrintCharString("Current value:", ST7735_COLOR_WHITE, 1, 1);
-	ST7735S_SetCursor(0, 20, 0);
-	ST7735S_PrintCharString("X:", ST7735_COLOR_BLUE, 1, 1);
-	ST7735S_SetCursor(16, 20, 0);
-	ST7735S_PrintIntNum(ptrky023 -> valVRX, ST7735_COLOR_BLUE, 1, 1);
-	ST7735S_SetCursor(0, 30, 0);
-	ST7735S_PrintCharString("Y:", ST7735_COLOR_RED, 1, 1);
-	ST7735S_SetCursor(16, 30, 0);
-	ST7735S_PrintIntNum(ptrky023 -> valVRY, ST7735_COLOR_RED, 1, 1);
-	#endif //DEBUG
 	
 	HAL_ADCEx_InjectedStop(&hadc1);
 }
@@ -206,8 +180,14 @@ void KY023_Processing(t_KY023 *ptrky023, uint16_t time)
 //================================================================================================================================================
 
 
-// User`s Functions
 //================================================================================================================================================
+void KY023_GetVRXVRY(t_KY023 *ptrky023)
+{
+	KY023_VRXVRY[0] = ptrky023 -> valVRX;
+	KY023_VRXVRY[1] = ptrky023 -> valVRY;
+}
+
+
 #ifdef ST7735_H_
 void KY023_CursorMode(t_KY023 *ptrky023)
 {
@@ -221,7 +201,7 @@ void KY023_CursorMode(t_KY023 *ptrky023)
 	uint16_t stepDpiYmin = lenYmin / ptrky023 -> dpi;
 	uint16_t stepDpiYmax = lenYmax / ptrky023 -> dpi;
 	
-	if(((ptrky023 -> valVRX) <= (valXmean + 5) ) && ((ptrky023 -> valVRX) >= (valXmean - 5) )){
+	if(((ptrky023 -> valVRX) <= (valXmean + 15) ) && ((ptrky023 -> valVRX) >= (valXmean - 15) )){
 		KY023_CursorVRXVRY[0] = 0;
 		KY023_CursorVRXVRY[1] = 0;
 	}
@@ -241,7 +221,7 @@ void KY023_CursorMode(t_KY023 *ptrky023)
 			}
 		}
 	}
-	if(((ptrky023 -> valVRY) <= (valYmean + 5) ) && ((ptrky023 -> valVRY) >= (valYmean - 5) )){
+	if(((ptrky023 -> valVRY) <= (valYmean + 15) ) && ((ptrky023 -> valVRY) >= (valYmean - 15) )){
 		KY023_CursorVRXVRY[2] = 0;
 		KY023_CursorVRXVRY[3] = 0;
 	}
@@ -303,7 +283,3 @@ void KY023_GetEffortVRXVRY(t_KY023 *ptrky023)
 	}	
 }
 //================================================================================================================================================
-
-
-
-

@@ -9,12 +9,6 @@
 //=============================================================================================================================
 
 
-//Declarations and definitions
-//=============================================================================================================================
-#define CNST_DELAY 10
-//=============================================================================================================================
-
-
 // description of button parameter
 //-----------------------------------------------------------------------------
 typedef struct c_KY023
@@ -37,6 +31,7 @@ typedef struct c_KY023
 	
 }t_KY023;
 
+extern uint16_t KY023_VRXVRY[];
 extern uint8_t KY023_EffortsVRXVRY[];
 extern uint16_t KY023_CursorVRXVRY[];
 //-----------------------------------------------------------------------------
@@ -47,8 +42,9 @@ void KY023_Init(t_KY023 *ptrky023,
 								GPIO_TypeDef *_portSW,  uint16_t _pinSW);
 
 void KY023_Processing(t_KY023 *ptrky023, uint16_t time);
+void KY023_GetVRXVRY(t_KY023 *ptrky023);
 void KY023_GetEffortVRXVRY(t_KY023 *ptrky023);
-void KY023_CursorMode(t_KY023 *ptrky023);
 void KY023_SetSensitivity(t_KY023 *ptrky023, uint8_t sensitivity);
+void KY023_CursorMode(t_KY023 *ptrky023);
 
 #endif // #ifndef KY023_H_
