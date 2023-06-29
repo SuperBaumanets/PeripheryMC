@@ -116,6 +116,12 @@ void joystickProcessing(t_KY023 *ptrky023)
   ptrky023 -> valVRY = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_2);
 	
 	HAL_ADCEx_InjectedStop(&hadc1);
+	
+	ST7735S_SetCursor(0, 0, 0);
+	ST7735S_PrintIntNum(ptrky023 -> valVRX, ST7735_COLOR_BLUE, 1, 1);
+	
+	ST7735S_SetCursor(0, 9, 0);
+	ST7735S_PrintIntNum(ptrky023 -> valVRY, ST7735_COLOR_RED, 1, 1);
 }
 
 void buttonProcessing(t_KY023 *ptrky023, uint16_t time)
@@ -245,9 +251,82 @@ void KY023_CursorMode(t_KY023 *ptrky023)
 #endif //define ST7735_H_ 
 
 
-uint16_t KY023_GetAngle(t_KY023 *ptrky023)
+int16_t KY023_GetAngle(t_KY023 *ptrky023, angle ANGLEPI)
 {
+	int16_t curAngle = 0;
+	int16_t convAngle;
 	
+	uint8_t step = 45; 
+	
+	uint8_t delta = 11;
+	uint8_t crct = 5;
+	
+	switch(ANGLEPI)
+	{
+		case TWOPI:
+			convAngle = 0;
+			break;
+		case PNPI:
+			convAngle = 360;
+			break;
+	}
+	
+	// [0]
+	if( ((ptrky023 -> valVRY) < valYmean - delta) && ((ptrky023 -> valVRY) > valYmean) && ((ptrky023 -> valVRX) < (valXmin + 10)) )
+		return 0;
+	// [45]
+	if( ((ptrky023 -> valVRY) < valYmin + delta) && ((ptrky023 -> valVRX) < (valXmin + delta)) )
+		return 45;
+	// [90]
+	if( ((ptrky023 -> valVRY) < (valYmin + 10)) && ((ptrky023 -> valVRX) > (valXmean - delta - crct)) && ((ptrky023 -> valVRX) < (valXmean + delta + crct)) )
+		return 90;
+	// [135]
+	if( ((ptrky023 -> valVRY) < (valYmin + delta)) && ((ptrky023 -> valVRX) > (valXmax - delta)) )
+		return 135;
+	// [180]
+	if( ((ptrky023 -> valVRY) > (valYmean - delta - crct)) && ((ptrky023 -> valVRY) < (valYmean + delta + crct)) && ((ptrky023 -> valVRX) > (valXmax - 20)) )
+		return 180;
+	// [225]/[-135]
+	if( ((ptrky023 -> valVRY) > (valYmax - delta)) && ((ptrky023 -> valVRX) > (valXmax - delta)) )
+		return 225 - convAngle;
+	// [270]/[-90]
+	if( ((ptrky023 -> valVRY) > (valYmax - 10)) && ((ptrky023 -> valVRX) > (valXmean - delta - crct)) && ((ptrky023 -> valVRX) < (valXmean + delta + crct)) )
+		return 270 - convAngle;
+	// [315]/[-45]
+	if( ((ptrky023 -> valVRY) > valYmax - delta) && ((ptrky023 -> valVRX) < (valXmin + delta)) )
+		return 315 - convAngle;
+	// [360]/[0]
+	if( ((ptrky023 -> valVRY) < valYmean + delta) && ((ptrky023 -> valVRY) > valYmean) && ((ptrky023 -> valVRX) < (valXmin + 10)) )
+		return 360 - convAngle;
+	
+	
+	// ( 0 - 45 )
+	if( ((ptrky023 -> valVRX) < (valXmin + 10)) && ((ptrky023 -> valVRY) < (valYmean - delta)) && ((ptrky023 -> valVRY) > (valYmin + delta)) )
+		curAngle = (float)((valYmean - (ptrky023 -> valVRY)) / step);
+	// ( 45 - 90 )
+	if( ((ptrky023 -> valVRY) < valYmin + 10) && ((ptrky023 -> valVRX) < (valXmean - delta)) && ((ptrky023 -> valVRX) > (valXmin + delta)) )
+		curAngle = (float)((ptrky023 -> valVRX) / step) + 45;
+	// ( 90 - 135 )
+	if( ((ptrky023 -> valVRY) < valYmin + 10) && ((ptrky023 -> valVRX) > (valXmean + delta)) && ((ptrky023 -> valVRX) < (valXmax - delta)) )
+		curAngle = (float)((ptrky023 -> valVRX) / step) + 45;
+	// ( 135 - 180 )
+	if( ((ptrky023 -> valVRX) > (valXmax - 10)) && ((ptrky023 -> valVRY) < (valYmean - delta)) && ((ptrky023 -> valVRY) > (valYmin + delta)) )
+		curAngle = (float)((ptrky023 -> valVRY) / step) + 135;
+	
+	// ( 180 - 225 )
+	if( ((ptrky023 -> valVRX) > (valXmax - 10)) && ((ptrky023 -> valVRY) > (valYmean + delta)) && ((ptrky023 -> valVRY) < (valYmax + delta)) )
+		curAngle = (float)((ptrky023 -> valVRY) / step) + 135 - convAngle;
+	// ( 225 - 270 )
+	if( ((ptrky023 -> valVRY) > valYmax - 10) && ((ptrky023 -> valVRX) > (valXmean + delta)) && ((ptrky023 -> valVRX) < (valXmax - delta)) )
+		curAngle = 270 - (float)( ((ptrky023 -> valVRX)- valXmean) / step) - convAngle;
+	// ( 270 - 315 )
+	if( ((ptrky023 -> valVRY) > valYmax - 10) && ((ptrky023 -> valVRX) > (valXmin + delta)) && ((ptrky023 -> valVRX) < (valXmean - delta)) )
+		curAngle = 315 - (float)((ptrky023 -> valVRX) / step) - convAngle;
+	// ( 315 - 360 )
+	if( ((ptrky023 -> valVRX) < (valXmin + 10)) && ((ptrky023 -> valVRY) > (valYmean + delta)) && ((ptrky023 -> valVRY) < (valYmax - delta)) )
+		curAngle = 360 - (float)(((ptrky023 -> valVRY) - valYmean) / step) - convAngle;
+	
+	return curAngle;
 }
 
 
